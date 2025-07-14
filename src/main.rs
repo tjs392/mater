@@ -6,6 +6,7 @@ mod util;
 mod zobrist;
 mod game;
 mod eval;
+mod movegen;
 
 use board::Board;
 use piece::{Piece, PIECE_TYPES};
@@ -14,20 +15,35 @@ use util::{print_board, print_bitboard};
 use zobrist::{ZOBRIST_RANDOMS};
 use crate::game::{GameState};
 use crate::eval::evaluate_position;
+use crate::movegen::generate_knight_attacks;
 
 fn main() {
     // Initialize GameState with starting position
     let mut game_state = GameState::new();
+    //generate_knight_attacks();
+    // let attacks_for_square_0 = movegen::KNIGHT_ATTACKS[0];
+
     let board = &game_state.board;
+    let mut knights = board.piece_bbs[Side::White as usize][Piece::Knight as usize];
+    let mut all_whites = 0;
 
-    println!("===== INITIAL BOARD STATE =====");
-    print_board(board);
-
-    game_state.add_material(Side::White, Piece::Bishop);
-
+    for piece in 0..6 {
+        all_whites |= board.piece_bbs[Side::White as usize][piece];
+    }
+    let attacks = movegen::generate_knight_moves(knights, all_whites);
+    print_bitboard(attacks);
     println!();
-    println!("==== Board evaluation ====");
-    println!("{:#?}", eval::evaluate_position(&game_state));
+    print_bitboard(all_whites);
+
+    // game_state.add_material(Side::White, Piece::Bishop);
+    // let board = &game_state.board;
+
+    // println!("===== INITIAL BOARD STATE =====");
+    // print_board(board);
+
+    // println!();
+    // println!("==== Board evaluation ====");
+    // println!("{:#?}", eval::evaluate_position(&game_state));
 
     // println!("\n===== PIECE BITBOARDS =====");
     // for side in 0..SIDES {
@@ -99,5 +115,5 @@ fn main() {
     //     println!("{:?} => 0x{:016X}", Side::from(i), val);
     // }
 
-    // println!("\n===== DEBUG COMPLETE =====");
+    println!("\n===== DEBUG COMPLETE =====");
 }
